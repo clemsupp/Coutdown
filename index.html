@@ -20,7 +20,7 @@ body {
 }
 
 /* =========================
-   MENU RÉGLAGES
+   MENU DES RÉGLAGES
 ========================= */
 
 #settingsScreen {
@@ -85,7 +85,7 @@ button {
 }
 
 /* =========================
-   ÉCRAN DU TIMER
+   ÉCRAN TIMER
 ========================= */
 
 #timerScreen {
@@ -120,11 +120,8 @@ button {
     margin-top: 20px;
 }
 
-/* =========================
-   BOUTON PASSER
-========================= */
-
-#skipBtn {
+#skipBtn,
+#delaySkipBtn {
     margin-top: 40px;
     background: #ffb000;
     color: white;
@@ -154,18 +151,11 @@ button {
 #delayTimer {
     font-size: clamp(100px, 25vw, 230px);
     font-weight: bold;
-    color: #222;
 }
 
 #delaySeconds {
     font-size: 25px;
     margin-top: 10px;
-}
-
-#delaySkipBtn {
-    margin-top: 40px;
-    background: #ffb000;
-    color: white;
 }
 
 /* =========================
@@ -218,6 +208,7 @@ button {
     from {
         transform: scale(1);
     }
+
     to {
         transform: scale(1.06);
     }
@@ -231,7 +222,7 @@ button {
     }
 
     .answerButtons button {
-        width: 100%;
+        width: 80%;
     }
 }
 </style>
@@ -239,9 +230,9 @@ button {
 
 <body>
 
-<!-- =================================
-     MENU DES RÉGLAGES
-================================= -->
+<!-- =========================
+     MENU RÉGLAGES
+========================= -->
 
 <div id="settingsScreen">
 
@@ -290,9 +281,9 @@ button {
 </div>
 
 
-<!-- =================================
-     ÉCRAN TIMER
-================================= -->
+<!-- =========================
+     TIMER PRINCIPAL
+========================= -->
 
 <div id="timerScreen">
 
@@ -300,7 +291,9 @@ button {
         ⚙️
     </button>
 
-    <div id="timer">30</div>
+    <div id="timer">
+        30
+    </div>
 
     <div id="secondsText">
         secondes
@@ -313,9 +306,9 @@ button {
 </div>
 
 
-<!-- =================================
-     ÉCRAN STREAM DELAY
-================================= -->
+<!-- =========================
+     STREAM DELAY
+========================= -->
 
 <div id="streamDelayScreen">
 
@@ -338,9 +331,9 @@ button {
 </div>
 
 
-<!-- =================================
-     ÉCRAN QUESTION
-================================= -->
+<!-- =========================
+     QUESTION
+========================= -->
 
 <div id="questionScreen">
 
@@ -365,9 +358,9 @@ button {
 
 <script>
 
-/* =================================
+/* =========================
    ÉLÉMENTS
-================================= */
+========================= */
 
 const settingsScreen =
     document.getElementById("settingsScreen");
@@ -421,20 +414,20 @@ const delaySeconds =
     document.getElementById("delaySeconds");
 
 
-/* =================================
+/* =========================
    VARIABLES
-================================= */
+========================= */
 
-let timerInterval = null;
-let delayInterval = null;
+let timerTimeout = null;
+let delayTimeout = null;
 
 let currentTime = 0;
 let currentDelay = 0;
 
 
-/* =================================
+/* =========================
    SON
-================================= */
+========================= */
 
 function beep(frequency = 700, duration = 180) {
 
@@ -469,26 +462,35 @@ function beep(frequency = 700, duration = 180) {
 }
 
 
-/* =================================
-   MISE À JOUR TIMER
-================================= */
+/* =========================
+   AFFICHAGE TIMER
+========================= */
 
 function updateTimer() {
 
     timer.textContent = currentTime;
 
-    secondsText.textContent =
-        currentTime <= 1
-            ? "seconde"
-            : "secondes";
+    if (currentTime <= 1) {
+        secondsText.textContent = "seconde";
+    } else {
+        secondsText.textContent = "secondes";
+    }
 
-    /* Les dernières secondes deviennent rouges */
+    /*
+       Dernières 10 secondes :
+       rouge
+    */
 
     if (currentTime <= 10) {
         timer.classList.add("warning");
     } else {
         timer.classList.remove("warning");
     }
+
+    /*
+       Dernières 5 secondes :
+       animation
+    */
 
     if (currentTime <= 5) {
         timer.classList.add("pulse");
@@ -498,22 +500,20 @@ function updateTimer() {
 }
 
 
-/* =================================
-   DÉMARRER LE TIMER
-================================= */
+/* =========================
+   DÉMARRER TIMER
+========================= */
 
 function startTimer() {
 
-    clearInterval(timerInterval);
-    clearInterval(delayInterval);
+    clearTimeout(timerTimeout);
+    clearTimeout(delayTimeout);
 
-    const startTime =
+    currentTime =
         Math.max(
             1,
             parseInt(startTimeInput.value) || 30
         );
-
-    currentTime = startTime;
 
     settingsScreen.style.display = "none";
     streamDelayScreen.style.display = "none";
@@ -527,55 +527,51 @@ function startTimer() {
 
     updateTimer();
 
-
     /*
-       RYTHME DU COMPTE À REBOURS
-
-       > Plus de 10 secondes :
-         1 seconde réelle = 1 seconde.
-
-       > De 10 à 6 :
-         1 seconde réelle = 1,5 seconde affichée.
-
-       > De 5 à 0 :
-         1 seconde réelle = 2 secondes affichées.
+       On attend une seconde avant
+       de passer au chiffre suivant.
     */
 
-    let accumulator = 0;
+    scheduleNextTick();
+}
 
-    timerInterval = setInterval(() => {
 
-        if (currentTime > 10) {
+/* =========================
+   COMPTE À REBOURS
+========================= */
 
-            currentTime -= 1;
+function scheduleNextTick() {
 
-        } else if (currentTime > 5) {
+    clearTimeout(timerTimeout);
 
-            /*
-             * 1 seconde réelle = 1,5 seconde affichée.
-             *
-             * On alterne donc :
-             * -1
-             * -2
-             */
+    /*
+       Vitesse normale :
+       1 seconde réelle = 1 chiffre
+    */
 
-            accumulator += 1.5;
+    let delay = 1000;
 
-            const amount =
-                Math.floor(accumulator);
+    /*
+       De 10 à 6 :
+       1 chiffre toutes les 1,5 secondes
+    */
 
-            accumulator -= amount;
+    if (currentTime <= 10 && currentTime > 5) {
+        delay = 1500;
+    }
 
-            currentTime -= amount;
+    /*
+       De 5 à 0 :
+       1 chiffre toutes les 2 secondes
+    */
 
-        } else {
+    if (currentTime <= 5 && currentTime > 0) {
+        delay = 2000;
+    }
 
-            /*
-             * 1 seconde réelle = 2 secondes affichées.
-             */
+    timerTimeout = setTimeout(() => {
 
-            currentTime -= 2;
-        }
+        currentTime--;
 
         if (currentTime < 0) {
             currentTime = 0;
@@ -584,27 +580,39 @@ function startTimer() {
         updateTimer();
 
         /*
-         * Petit bip sur les dernières secondes
-         */
+           Bip pendant les 10 dernières secondes.
+        */
 
         if (currentTime <= 10 && currentTime > 0) {
             beep(600, 100);
         }
 
-        if (currentTime <= 0) {
+        /*
+           Arrivé à 0 :
+           Stream Delay.
+        */
 
-            clearInterval(timerInterval);
+        if (currentTime === 0) {
 
             startStreamDelay();
+
+            return;
         }
 
-    }, 1000);
+        /*
+           Sinon on continue avec
+           le chiffre suivant.
+        */
+
+        scheduleNextTick();
+
+    }, delay);
 }
 
 
-/* =================================
-   BOUTON PASSER À X
-================================= */
+/* =========================
+   PASSER À X SECONDES
+========================= */
 
 function skipToSelectedTime() {
 
@@ -614,13 +622,16 @@ function skipToSelectedTime() {
             parseInt(skipTimeInput.value) || 15
         );
 
+    clearTimeout(timerTimeout);
+
     currentTime = skipTime;
 
     updateTimer();
 
     beep(800, 150);
-}
 
+    scheduleNextTick();
+}
 
 skipBtn.addEventListener(
     "click",
@@ -628,13 +639,14 @@ skipBtn.addEventListener(
 );
 
 
-/* =================================
+/* =========================
    STREAM DELAY
-================================= */
+========================= */
 
 function startStreamDelay() {
 
-    clearInterval(delayInterval);
+    clearTimeout(timerTimeout);
+    clearTimeout(delayTimeout);
 
     timerScreen.style.display = "none";
     questionScreen.style.display = "none";
@@ -649,7 +661,19 @@ function startStreamDelay() {
 
     updateDelay();
 
-    delayInterval = setInterval(() => {
+    scheduleDelayTick();
+}
+
+
+/* =========================
+   STREAM DELAY TIMER
+========================= */
+
+function scheduleDelayTick() {
+
+    clearTimeout(delayTimeout);
+
+    delayTimeout = setTimeout(() => {
 
         currentDelay--;
 
@@ -659,37 +683,42 @@ function startStreamDelay() {
 
         if (currentDelay <= 0) {
 
-            clearInterval(delayInterval);
-
             showQuestion();
+
+            return;
         }
+
+        scheduleDelayTick();
 
     }, 1000);
 }
 
 
-/* =================================
-   MISE À JOUR STREAM DELAY
-================================= */
+/* =========================
+   AFFICHAGE STREAM DELAY
+========================= */
 
 function updateDelay() {
 
     delayTimer.textContent = currentDelay;
 
-    delaySeconds.textContent =
-        currentDelay <= 1
-            ? "seconde"
-            : "secondes";
+    if (currentDelay <= 1) {
+        delaySeconds.textContent = "seconde";
+    } else {
+        delaySeconds.textContent = "secondes";
+    }
 }
 
 
-/* =================================
-   BOUTON STREAM DELAY
-================================= */
+/* =========================
+   PASSER LE STREAM DELAY
+========================= */
 
 delaySkipBtn.addEventListener(
     "click",
     () => {
+
+        clearTimeout(delayTimeout);
 
         const skipTime =
             Math.max(
@@ -697,18 +726,11 @@ delaySkipBtn.addEventListener(
                 parseInt(skipTimeInput.value) || 15
             );
 
-        /*
-         * On quitte le Stream Delay
-         * et on revient directement
-         * au timer principal à 15 secondes.
-         */
-
-        clearInterval(delayInterval);
-
         currentTime = skipTime;
 
         streamDelayScreen.style.display = "none";
         questionScreen.style.display = "none";
+
         timerScreen.style.display = "flex";
 
         timer.style.display = "block";
@@ -719,70 +741,18 @@ delaySkipBtn.addEventListener(
 
         beep(800, 150);
 
-        startTimerFromCurrentTime();
+        scheduleNextTick();
     }
 );
 
 
-/* =================================
-   REPRENDRE LE TIMER DEPUIS LA
-   VALEUR ACTUELLE
-================================= */
-
-function startTimerFromCurrentTime() {
-
-    clearInterval(timerInterval);
-
-    let accumulator = 0;
-
-    timerInterval = setInterval(() => {
-
-        if (currentTime > 10) {
-
-            currentTime -= 1;
-
-        } else if (currentTime > 5) {
-
-            accumulator += 1.5;
-
-            const amount =
-                Math.floor(accumulator);
-
-            accumulator -= amount;
-
-            currentTime -= amount;
-
-        } else {
-
-            currentTime -= 2;
-        }
-
-        if (currentTime < 0) {
-            currentTime = 0;
-        }
-
-        updateTimer();
-
-        if (currentTime <= 10 && currentTime > 0) {
-            beep(600, 100);
-        }
-
-        if (currentTime <= 0) {
-
-            clearInterval(timerInterval);
-
-            startStreamDelay();
-        }
-
-    }, 1000);
-}
-
-
-/* =================================
-   QUESTION APRÈS STREAM DELAY
-================================= */
+/* =========================
+   QUESTION
+========================= */
 
 function showQuestion() {
+
+    clearTimeout(delayTimeout);
 
     streamDelayScreen.style.display = "none";
 
@@ -792,23 +762,25 @@ function showQuestion() {
 }
 
 
-/* =================================
+/* =========================
    OUI
-================================= */
+========================= */
 
 yesBtn.addEventListener(
     "click",
     () => {
 
-        questionScreen.style.display = "none";
-
-        timerScreen.style.display = "flex";
-
-        currentTime =
+        const skipTime =
             Math.max(
                 1,
                 parseInt(skipTimeInput.value) || 15
             );
+
+        currentTime = skipTime;
+
+        questionScreen.style.display = "none";
+
+        timerScreen.style.display = "flex";
 
         timer.style.display = "block";
         secondsText.style.display = "block";
@@ -818,24 +790,29 @@ yesBtn.addEventListener(
 
         beep(900, 150);
 
-        startTimerFromCurrentTime();
+        scheduleNextTick();
     }
 );
 
 
-/* =================================
+/* =========================
    NON
-================================= */
+========================= */
 
 noBtn.addEventListener(
     "click",
     () => {
 
-        clearInterval(timerInterval);
-        clearInterval(delayInterval);
+        clearTimeout(timerTimeout);
+        clearTimeout(delayTimeout);
 
         questionScreen.style.display = "none";
         timerScreen.style.display = "none";
+        streamDelayScreen.style.display = "none";
+
+        /*
+           Retour au menu des réglages.
+        */
 
         settingsScreen.style.display = "block";
 
@@ -844,16 +821,16 @@ noBtn.addEventListener(
 );
 
 
-/* =================================
-   RETOUR RÉGLAGES
-================================= */
+/* =========================
+   BOUTON RÉGLAGES
+========================= */
 
 settingsBtn.addEventListener(
     "click",
     () => {
 
-        clearInterval(timerInterval);
-        clearInterval(delayInterval);
+        clearTimeout(timerTimeout);
+        clearTimeout(delayTimeout);
 
         timerScreen.style.display = "none";
         streamDelayScreen.style.display = "none";
@@ -864,21 +841,18 @@ settingsBtn.addEventListener(
 );
 
 
-/* =================================
+/* =========================
    START
-================================= */
+========================= */
 
 startBtn.addEventListener(
     "click",
     () => {
 
         /*
-         * Les réglages disparaissent
-         * immédiatement.
-         *
-         * Le viewer ne voit donc jamais
-         * le menu pendant la session.
-         */
+           Dès que START est pressé,
+           le menu disparaît.
+        */
 
         settingsScreen.style.display = "none";
 
@@ -887,12 +861,15 @@ startBtn.addEventListener(
 );
 
 
-/* =================================
+/* =========================
    INITIALISATION
-================================= */
+========================= */
 
 currentTime =
     parseInt(startTimeInput.value) || 30;
+
+currentDelay =
+    parseInt(alarmTimeInput.value) || 7;
 
 updateTimer();
 updateDelay();
