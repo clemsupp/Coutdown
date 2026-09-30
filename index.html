@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kahoot Down</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        color: #222;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .screen {
+        width: 100%;
+        max-width: 700px;
+        padding: 30px;
+        text-align: center;
+    }
+
+    h1 {
+        font-size: 45px;
+        margin-bottom: 35px;
+    }
+
+    .settings {
+        background: white;
+        padding: 30px;
+        border-radius: 18px;
+        box-shadow: 0 5px 25px rgba(0,0,0,.1);
+    }
+
+    label {
+        display: block;
+        font-size: 18px;
+        margin-top: 20px;
+        margin-bottom: 8px;
+        text-align: left;
+    }
+
+    input {
+        width: 100%;
+        padding: 14px;
+        font-size: 20px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #777;
+    }
+
+    button {
+        border: none;
+        border-radius: 10px;
+        padding: 14px 25px;
+        font-size: 19px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    #startBtn {
+        margin-top: 30px;
+        width: 100%;
+        background: #2684ff;
+        color: white;
+    }
+
+    #startBtn:hover {
+        background: #1769d1;
+    }
+
+    #timerScreen {
+        display: none;
+        position: relative;
+        width: 100%;
+        min-height: 100vh;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    #settingsBtn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: white;
+        color: #222;
+        box-shadow: 0 3px 12px rgba(0,0,0,.15);
+        padding: 10px 15px;
+        font-size: 16px;
+    }
+
+    #timer {
+        font-size: clamp(100px, 25vw, 250px);
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    #secondsText {
+        font-size: 25px;
+        margin-top: 20px;
+    }
+
+    #skipBtn {
+        margin-top: 40px;
+        background: #ffb000;
+        color: white;
+    }
+
+    #timeUp {
+        display: none;
+        color: #e00000;
+        font-size: clamp(55px, 12vw, 120px);
+        font-weight: 900;
+        animation: shake .15s infinite alternate;
+    }
+
+    #againBtn {
+        display: none;
+        margin-top: 40px;
+        background: #2684ff;
+        color: white;
+    }
+
+    @keyframes shake {
+        from {
+            transform: translateX(-3px);
+        }
+        to {
+            transform: translateX(3px);
+        }
+    }
+
+    .hidden {
+        display: none !important;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- PAGE DES RÉGLAGES -->
+<div id="settingsScreen" class="screen">
+
+    <h1>🎮 Kahoot Down</h1>
+
+    <div class="settings">
+
+        <label for="startTime">
+            Temps de départ (secondes)
+        </label>
+
+        <input
+            id="startTime"
+            type="number"
+            min="1"
+            value="30"
+        >
+
+        <label for="skipTime">
+            Temps du bouton pendant le timer
+        </label>
+
+        <input
+            id="skipTime"
+            type="number"
+            min="1"
+            value="15"
+        >
+
+        <label for="alarmTime">
+            Durée de l'alarme
+        </label>
+
+        <input
+            id="alarmTime"
+            type="number"
+            min="1"
+            value="7"
+        >
+
+        <button id="startBtn">
+            START
+        </button>
+
+    </div>
+</div>
+
+
+<!-- PAGE DU TIMER -->
+<div id="timerScreen">
+
+    <button id="settingsBtn">
+        ⚙️ Réglages
+    </button>
+
+    <div id="timer">30</div>
+
+    <div id="secondsText">
+        secondes
+    </div>
+
+    <button id="skipBtn">
+        ⏩ Passer à 15
+    </button>
+
+    <div id="timeUp">
+        TIME'S UP!
+    </div>
+
+    <button id="againBtn">
+        🔄 Play Again
+    </button>
+
+</div>
+
+
+<script>
+
+const settingsScreen = document.getElementById("settingsScreen");
+const timerScreen = document.getElementById("timerScreen");
+
+const startTimeInput = document.getElementById("startTime");
+const skipTimeInput = document.getElementById("skipTime");
+const alarmTimeInput = document.getElementById("alarmTime");
+
+const startBtn = document.getElementById("startBtn");
+const settingsBtn = document.getElementById("settingsBtn");
+const skipBtn = document.getElementById("skipBtn");
+const againBtn = document.getElementById("againBtn");
+
+const timer = document.getElementById("timer");
+const secondsText = document.getElementById("secondsText");
+const timeUp = document.getElementById("timeUp");
+
+let currentTime = 30;
+let interval = null;
+let alarmInterval = null;
+
+
+// ==========================
+// SON
+// ==========================
+
+function beep() {
+
+    const audio = new AudioContext();
+
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+
+    oscillator.frequency.value = 700;
+    oscillator.type = "square";
+
+    gain.gain.value = 0.15;
+
+    oscillator.connect(gain);
+    gain.connect(audio.destination);
+
+    oscillator.start();
+
+    setTimeout(() => {
+        oscillator.stop();
+        audio.close();
+    }, 250);
+}
+
+
+// ==========================
+// AFFICHER LE TIMER
+// ==========================
+
+function updateTimer() {
+
+    timer.textContent = currentTime;
+
+    if (currentTime <= 1) {
+        secondsText.textContent = "seconde";
+    } else {
+        secondsText.textContent = "secondes";
+    }
+}
+
+
+// ==========================
+// DÉMARRER
+// ==========================
+
+function startTimer() {
+
+    clearInterval(interval);
+    clearInterval(alarmInterval);
+
+    const startTime = Math.max(
+        1,
+        parseInt(startTimeInput.value) || 30
+    );
+
+    currentTime = startTime;
+
+    timer.style.display = "block";
+    secondsText.style.display = "block";
+    skipBtn.style.display = "inline-block";
+
+    timeUp.style.display = "none";
+    againBtn.style.display = "none";
+
+    updateTimer();
+
+    interval = setInterval(() => {
+
+        currentTime--;
+
+        updateTimer();
+
+        if (currentTime <= 0) {
+            clearInterval(interval);
+            finishTimer();
+        }
+
+    }, 1000);
+}
+
+
+// ==========================
+// FIN DU TIMER
+// ==========================
+
+function finishTimer() {
+
+    timer.style.display = "none";
+    secondsText.style.display = "none";
+    skipBtn.style.display = "none";
+
+    timeUp.style.display = "block";
+
+    beep();
+
+    const alarmDuration =
+        Math.max(1, parseInt(alarmTimeInput.value) || 7);
+
+    let remaining = alarmDuration;
+
+    alarmInterval = setInterval(() => {
+
+        beep();
+
+        remaining--;
+
+        if (remaining <= 0) {
+
+            clearInterval(alarmInterval);
+
+            againBtn.style.display = "inline-block";
+        }
+
+    }, 1000);
+}
+
+
+// ==========================
+// BOUTON "PASSER À 15"
+// ==========================
+
+skipBtn.addEventListener("click", () => {
+
+    const skipTime =
+        Math.max(1, parseInt(skipTimeInput.value) || 15);
+
+    currentTime = skipTime;
+
+    updateTimer();
+
+    beep();
+});
+
+
+// ==========================
+// START
+// ==========================
+
+startBtn.addEventListener("click", () => {
+
+    settingsScreen.style.display = "none";
+    timerScreen.style.display = "flex";
+
+    startTimer();
+});
+
+
+// ==========================
+// RÉGLAGES
+// ==========================
+
+settingsBtn.addEventListener("click", () => {
+
+    clearInterval(interval);
+    clearInterval(alarmInterval);
+
+    timerScreen.style.display = "none";
+    settingsScreen.style.display = "block";
+});
+
+
+// ==========================
+// PLAY AGAIN
+// ==========================
+
+againBtn.addEventListener("click", () => {
+
+    startTimer();
+});
+
+
+// ==========================
+// INITIALISATION
+// ==========================
+
+updateTimer();
+
+</script>
+
+</body>
+</html>
