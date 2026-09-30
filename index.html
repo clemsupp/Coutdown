@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -6,160 +7,250 @@
 <title>Kahoot Down</title>
 
 <style>
-    * {
-        box-sizing: border-box;
-    }
+* {
+    box-sizing: border-box;
+}
 
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #f5f5f5;
-        color: #222;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color: #222;
+    min-height: 100vh;
+}
 
-    .screen {
-        width: 100%;
-        max-width: 700px;
-        padding: 30px;
-        text-align: center;
-    }
+/* =========================
+   MENU RÉGLAGES
+========================= */
 
-    h1 {
-        font-size: 45px;
-        margin-bottom: 35px;
-    }
+#settingsScreen {
+    width: 100%;
+    max-width: 700px;
+    margin: auto;
+    padding: 30px;
+    text-align: center;
+}
 
-    .settings {
-        background: white;
-        padding: 30px;
-        border-radius: 18px;
-        box-shadow: 0 5px 25px rgba(0,0,0,.1);
-    }
+h1 {
+    font-size: 45px;
+    margin-bottom: 35px;
+}
 
-    label {
-        display: block;
-        font-size: 18px;
-        margin-top: 20px;
-        margin-bottom: 8px;
-        text-align: left;
-    }
+.settings {
+    background: white;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 5px 25px rgba(0,0,0,.1);
+}
 
-    input {
-        width: 100%;
-        padding: 14px;
-        font-size: 20px;
-        border: 2px solid #ddd;
-        border-radius: 10px;
-        outline: none;
-    }
+label {
+    display: block;
+    font-size: 18px;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    text-align: left;
+}
 
-    input:focus {
-        border-color: #777;
-    }
+input {
+    width: 100%;
+    padding: 14px;
+    font-size: 20px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+}
 
-    button {
-        border: none;
-        border-radius: 10px;
-        padding: 14px 25px;
-        font-size: 19px;
-        cursor: pointer;
-        font-weight: bold;
-    }
+input:focus {
+    border-color: #777;
+}
 
-    #startBtn {
-        margin-top: 30px;
-        width: 100%;
-        background: #2684ff;
-        color: white;
-    }
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 14px 25px;
+    font-size: 19px;
+    cursor: pointer;
+    font-weight: bold;
+}
 
-    #startBtn:hover {
-        background: #1769d1;
-    }
+#startBtn {
+    margin-top: 30px;
+    width: 100%;
+    background: #2684ff;
+    color: white;
+}
 
-    #timerScreen {
-        display: none;
-        position: relative;
-        width: 100%;
-        min-height: 100vh;
-        justify-content: center;
-        align-items: center;
+#startBtn:hover {
+    background: #1769d1;
+}
+
+/* =========================
+   ÉCRAN DU TIMER
+========================= */
+
+#timerScreen {
+    display: none;
+    width: 100%;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+}
+
+#settingsBtn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: white;
+    color: #222;
+    box-shadow: 0 3px 12px rgba(0,0,0,.15);
+    padding: 10px 15px;
+    font-size: 16px;
+}
+
+#timer {
+    font-size: clamp(100px, 25vw, 250px);
+    font-weight: bold;
+    line-height: 1;
+}
+
+#secondsText {
+    font-size: 25px;
+    margin-top: 20px;
+}
+
+/* =========================
+   BOUTON PASSER
+========================= */
+
+#skipBtn {
+    margin-top: 40px;
+    background: #ffb000;
+    color: white;
+}
+
+/* =========================
+   STREAM DELAY
+========================= */
+
+#streamDelayScreen {
+    display: none;
+    width: 100%;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+#streamDelayTitle {
+    color: #e00000;
+    font-size: clamp(50px, 10vw, 100px);
+    font-weight: 900;
+    margin-bottom: 25px;
+}
+
+#delayTimer {
+    font-size: clamp(100px, 25vw, 230px);
+    font-weight: bold;
+    color: #222;
+}
+
+#delaySeconds {
+    font-size: 25px;
+    margin-top: 10px;
+}
+
+#delaySkipBtn {
+    margin-top: 40px;
+    background: #ffb000;
+    color: white;
+}
+
+/* =========================
+   QUESTION
+========================= */
+
+#questionScreen {
+    display: none;
+    width: 100%;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+#questionScreen h2 {
+    font-size: clamp(35px, 7vw, 70px);
+    margin: 0 20px 40px;
+}
+
+.answerButtons {
+    display: flex;
+    gap: 20px;
+}
+
+#yesBtn {
+    background: #22b573;
+    color: white;
+}
+
+#noBtn {
+    background: #e00000;
+    color: white;
+}
+
+/* =========================
+   ANIMATION
+========================= */
+
+.warning {
+    color: #e00000 !important;
+}
+
+.pulse {
+    animation: pulse .5s infinite alternate;
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.06);
+    }
+}
+
+@media (max-width: 600px) {
+
+    .answerButtons {
         flex-direction: column;
+        width: 80%;
     }
 
-    #settingsBtn {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        background: white;
-        color: #222;
-        box-shadow: 0 3px 12px rgba(0,0,0,.15);
-        padding: 10px 15px;
-        font-size: 16px;
+    .answerButtons button {
+        width: 100%;
     }
-
-    #timer {
-        font-size: clamp(100px, 25vw, 250px);
-        font-weight: bold;
-        line-height: 1;
-    }
-
-    #secondsText {
-        font-size: 25px;
-        margin-top: 20px;
-    }
-
-    #skipBtn {
-        margin-top: 40px;
-        background: #ffb000;
-        color: white;
-    }
-
-    #timeUp {
-        display: none;
-        color: #e00000;
-        font-size: clamp(55px, 12vw, 120px);
-        font-weight: 900;
-        animation: shake .15s infinite alternate;
-    }
-
-    #againBtn {
-        display: none;
-        margin-top: 40px;
-        background: #2684ff;
-        color: white;
-    }
-
-    @keyframes shake {
-        from {
-            transform: translateX(-3px);
-        }
-        to {
-            transform: translateX(3px);
-        }
-    }
-
-    .hidden {
-        display: none !important;
-    }
+}
 </style>
 </head>
 
 <body>
 
-<!-- PAGE DES RÉGLAGES -->
-<div id="settingsScreen" class="screen">
+<!-- =================================
+     MENU DES RÉGLAGES
+================================= -->
+
+<div id="settingsScreen">
 
     <h1>🎮 Kahoot Down</h1>
 
     <div class="settings">
 
         <label for="startTime">
-            Temps de départ (secondes)
+            Temps de départ
         </label>
 
         <input
@@ -170,7 +261,7 @@
         >
 
         <label for="skipTime">
-            Temps du bouton pendant le timer
+            Temps du bouton « Passer à »
         </label>
 
         <input
@@ -181,7 +272,7 @@
         >
 
         <label for="alarmTime">
-            Durée de l'alarme
+            Stream Delay
         </label>
 
         <input
@@ -199,11 +290,14 @@
 </div>
 
 
-<!-- PAGE DU TIMER -->
+<!-- =================================
+     ÉCRAN TIMER
+================================= -->
+
 <div id="timerScreen">
 
     <button id="settingsBtn">
-        ⚙️ Réglages
+        ⚙️
     </button>
 
     <div id="timer">30</div>
@@ -216,55 +310,152 @@
         ⏩ Passer à 15
     </button>
 
-    <div id="timeUp">
-        TIME'S UP!
+</div>
+
+
+<!-- =================================
+     ÉCRAN STREAM DELAY
+================================= -->
+
+<div id="streamDelayScreen">
+
+    <div id="streamDelayTitle">
+        STREAM DELAY
     </div>
 
-    <button id="againBtn">
-        🔄 Play Again
+    <div id="delayTimer">
+        7
+    </div>
+
+    <div id="delaySeconds">
+        secondes
+    </div>
+
+    <button id="delaySkipBtn">
+        ⏩ Passer à 15
     </button>
+
+</div>
+
+
+<!-- =================================
+     ÉCRAN QUESTION
+================================= -->
+
+<div id="questionScreen">
+
+    <h2>
+        Est-ce qu'il y a eu plus d'argent ?
+    </h2>
+
+    <div class="answerButtons">
+
+        <button id="yesBtn">
+            OUI
+        </button>
+
+        <button id="noBtn">
+            NON
+        </button>
+
+    </div>
 
 </div>
 
 
 <script>
 
-const settingsScreen = document.getElementById("settingsScreen");
-const timerScreen = document.getElementById("timerScreen");
+/* =================================
+   ÉLÉMENTS
+================================= */
 
-const startTimeInput = document.getElementById("startTime");
-const skipTimeInput = document.getElementById("skipTime");
-const alarmTimeInput = document.getElementById("alarmTime");
+const settingsScreen =
+    document.getElementById("settingsScreen");
 
-const startBtn = document.getElementById("startBtn");
-const settingsBtn = document.getElementById("settingsBtn");
-const skipBtn = document.getElementById("skipBtn");
-const againBtn = document.getElementById("againBtn");
+const timerScreen =
+    document.getElementById("timerScreen");
 
-const timer = document.getElementById("timer");
-const secondsText = document.getElementById("secondsText");
-const timeUp = document.getElementById("timeUp");
+const streamDelayScreen =
+    document.getElementById("streamDelayScreen");
 
-let currentTime = 30;
-let interval = null;
-let alarmInterval = null;
+const questionScreen =
+    document.getElementById("questionScreen");
+
+const startTimeInput =
+    document.getElementById("startTime");
+
+const skipTimeInput =
+    document.getElementById("skipTime");
+
+const alarmTimeInput =
+    document.getElementById("alarmTime");
+
+const startBtn =
+    document.getElementById("startBtn");
+
+const settingsBtn =
+    document.getElementById("settingsBtn");
+
+const skipBtn =
+    document.getElementById("skipBtn");
+
+const delaySkipBtn =
+    document.getElementById("delaySkipBtn");
+
+const yesBtn =
+    document.getElementById("yesBtn");
+
+const noBtn =
+    document.getElementById("noBtn");
+
+const timer =
+    document.getElementById("timer");
+
+const secondsText =
+    document.getElementById("secondsText");
+
+const delayTimer =
+    document.getElementById("delayTimer");
+
+const delaySeconds =
+    document.getElementById("delaySeconds");
 
 
-// ==========================
-// SON
-// ==========================
+/* =================================
+   VARIABLES
+================================= */
 
-function beep() {
+let timerInterval = null;
+let delayInterval = null;
+
+let currentTime = 0;
+let currentDelay = 0;
+
+
+/* =================================
+   SON
+================================= */
+
+function beep(frequency = 700, duration = 180) {
+
+    const AudioContext =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+    if (!AudioContext) return;
 
     const audio = new AudioContext();
 
-    const oscillator = audio.createOscillator();
-    const gain = audio.createGain();
+    const oscillator =
+        audio.createOscillator();
 
-    oscillator.frequency.value = 700;
+    const gain =
+        audio.createGain();
+
+    oscillator.frequency.value = frequency;
     oscillator.type = "square";
 
-    gain.gain.value = 0.15;
+    gain.gain.value = 0.12;
 
     oscillator.connect(gain);
     gain.connect(audio.destination);
@@ -274,163 +465,440 @@ function beep() {
     setTimeout(() => {
         oscillator.stop();
         audio.close();
-    }, 250);
+    }, duration);
 }
 
 
-// ==========================
-// AFFICHER LE TIMER
-// ==========================
+/* =================================
+   MISE À JOUR TIMER
+================================= */
 
 function updateTimer() {
 
     timer.textContent = currentTime;
 
-    if (currentTime <= 1) {
-        secondsText.textContent = "seconde";
+    secondsText.textContent =
+        currentTime <= 1
+            ? "seconde"
+            : "secondes";
+
+    /* Les dernières secondes deviennent rouges */
+
+    if (currentTime <= 10) {
+        timer.classList.add("warning");
     } else {
-        secondsText.textContent = "secondes";
+        timer.classList.remove("warning");
+    }
+
+    if (currentTime <= 5) {
+        timer.classList.add("pulse");
+    } else {
+        timer.classList.remove("pulse");
     }
 }
 
 
-// ==========================
-// DÉMARRER
-// ==========================
+/* =================================
+   DÉMARRER LE TIMER
+================================= */
 
 function startTimer() {
 
-    clearInterval(interval);
-    clearInterval(alarmInterval);
+    clearInterval(timerInterval);
+    clearInterval(delayInterval);
 
-    const startTime = Math.max(
-        1,
-        parseInt(startTimeInput.value) || 30
-    );
+    const startTime =
+        Math.max(
+            1,
+            parseInt(startTimeInput.value) || 30
+        );
 
     currentTime = startTime;
+
+    settingsScreen.style.display = "none";
+    streamDelayScreen.style.display = "none";
+    questionScreen.style.display = "none";
+
+    timerScreen.style.display = "flex";
 
     timer.style.display = "block";
     secondsText.style.display = "block";
     skipBtn.style.display = "inline-block";
 
-    timeUp.style.display = "none";
-    againBtn.style.display = "none";
-
     updateTimer();
 
-    interval = setInterval(() => {
 
-        currentTime--;
+    /*
+       RYTHME DU COMPTE À REBOURS
+
+       > Plus de 10 secondes :
+         1 seconde réelle = 1 seconde.
+
+       > De 10 à 6 :
+         1 seconde réelle = 1,5 seconde affichée.
+
+       > De 5 à 0 :
+         1 seconde réelle = 2 secondes affichées.
+    */
+
+    let accumulator = 0;
+
+    timerInterval = setInterval(() => {
+
+        if (currentTime > 10) {
+
+            currentTime -= 1;
+
+        } else if (currentTime > 5) {
+
+            /*
+             * 1 seconde réelle = 1,5 seconde affichée.
+             *
+             * On alterne donc :
+             * -1
+             * -2
+             */
+
+            accumulator += 1.5;
+
+            const amount =
+                Math.floor(accumulator);
+
+            accumulator -= amount;
+
+            currentTime -= amount;
+
+        } else {
+
+            /*
+             * 1 seconde réelle = 2 secondes affichées.
+             */
+
+            currentTime -= 2;
+        }
+
+        if (currentTime < 0) {
+            currentTime = 0;
+        }
 
         updateTimer();
 
+        /*
+         * Petit bip sur les dernières secondes
+         */
+
+        if (currentTime <= 10 && currentTime > 0) {
+            beep(600, 100);
+        }
+
         if (currentTime <= 0) {
-            clearInterval(interval);
-            finishTimer();
+
+            clearInterval(timerInterval);
+
+            startStreamDelay();
         }
 
     }, 1000);
 }
 
 
-// ==========================
-// FIN DU TIMER
-// ==========================
+/* =================================
+   BOUTON PASSER À X
+================================= */
 
-function finishTimer() {
-
-    timer.style.display = "none";
-    secondsText.style.display = "none";
-    skipBtn.style.display = "none";
-
-    timeUp.style.display = "block";
-
-    beep();
-
-    const alarmDuration =
-        Math.max(1, parseInt(alarmTimeInput.value) || 7);
-
-    let remaining = alarmDuration;
-
-    alarmInterval = setInterval(() => {
-
-        beep();
-
-        remaining--;
-
-        if (remaining <= 0) {
-
-            clearInterval(alarmInterval);
-
-            againBtn.style.display = "inline-block";
-        }
-
-    }, 1000);
-}
-
-
-// ==========================
-// BOUTON "PASSER À 15"
-// ==========================
-
-skipBtn.addEventListener("click", () => {
+function skipToSelectedTime() {
 
     const skipTime =
-        Math.max(1, parseInt(skipTimeInput.value) || 15);
+        Math.max(
+            1,
+            parseInt(skipTimeInput.value) || 15
+        );
 
     currentTime = skipTime;
 
     updateTimer();
 
-    beep();
-});
+    beep(800, 150);
+}
 
 
-// ==========================
-// START
-// ==========================
-
-startBtn.addEventListener("click", () => {
-
-    settingsScreen.style.display = "none";
-    timerScreen.style.display = "flex";
-
-    startTimer();
-});
+skipBtn.addEventListener(
+    "click",
+    skipToSelectedTime
+);
 
 
-// ==========================
-// RÉGLAGES
-// ==========================
+/* =================================
+   STREAM DELAY
+================================= */
 
-settingsBtn.addEventListener("click", () => {
+function startStreamDelay() {
 
-    clearInterval(interval);
-    clearInterval(alarmInterval);
+    clearInterval(delayInterval);
 
     timerScreen.style.display = "none";
-    settingsScreen.style.display = "block";
-});
+    questionScreen.style.display = "none";
+
+    streamDelayScreen.style.display = "flex";
+
+    currentDelay =
+        Math.max(
+            1,
+            parseInt(alarmTimeInput.value) || 7
+        );
+
+    updateDelay();
+
+    delayInterval = setInterval(() => {
+
+        currentDelay--;
+
+        updateDelay();
+
+        beep(500, 120);
+
+        if (currentDelay <= 0) {
+
+            clearInterval(delayInterval);
+
+            showQuestion();
+        }
+
+    }, 1000);
+}
 
 
-// ==========================
-// PLAY AGAIN
-// ==========================
+/* =================================
+   MISE À JOUR STREAM DELAY
+================================= */
 
-againBtn.addEventListener("click", () => {
+function updateDelay() {
 
-    startTimer();
-});
+    delayTimer.textContent = currentDelay;
+
+    delaySeconds.textContent =
+        currentDelay <= 1
+            ? "seconde"
+            : "secondes";
+}
 
 
-// ==========================
-// INITIALISATION
-// ==========================
+/* =================================
+   BOUTON STREAM DELAY
+================================= */
+
+delaySkipBtn.addEventListener(
+    "click",
+    () => {
+
+        const skipTime =
+            Math.max(
+                1,
+                parseInt(skipTimeInput.value) || 15
+            );
+
+        /*
+         * On quitte le Stream Delay
+         * et on revient directement
+         * au timer principal à 15 secondes.
+         */
+
+        clearInterval(delayInterval);
+
+        currentTime = skipTime;
+
+        streamDelayScreen.style.display = "none";
+        questionScreen.style.display = "none";
+        timerScreen.style.display = "flex";
+
+        timer.style.display = "block";
+        secondsText.style.display = "block";
+        skipBtn.style.display = "inline-block";
+
+        updateTimer();
+
+        beep(800, 150);
+
+        startTimerFromCurrentTime();
+    }
+);
+
+
+/* =================================
+   REPRENDRE LE TIMER DEPUIS LA
+   VALEUR ACTUELLE
+================================= */
+
+function startTimerFromCurrentTime() {
+
+    clearInterval(timerInterval);
+
+    let accumulator = 0;
+
+    timerInterval = setInterval(() => {
+
+        if (currentTime > 10) {
+
+            currentTime -= 1;
+
+        } else if (currentTime > 5) {
+
+            accumulator += 1.5;
+
+            const amount =
+                Math.floor(accumulator);
+
+            accumulator -= amount;
+
+            currentTime -= amount;
+
+        } else {
+
+            currentTime -= 2;
+        }
+
+        if (currentTime < 0) {
+            currentTime = 0;
+        }
+
+        updateTimer();
+
+        if (currentTime <= 10 && currentTime > 0) {
+            beep(600, 100);
+        }
+
+        if (currentTime <= 0) {
+
+            clearInterval(timerInterval);
+
+            startStreamDelay();
+        }
+
+    }, 1000);
+}
+
+
+/* =================================
+   QUESTION APRÈS STREAM DELAY
+================================= */
+
+function showQuestion() {
+
+    streamDelayScreen.style.display = "none";
+
+    questionScreen.style.display = "flex";
+
+    beep(900, 300);
+}
+
+
+/* =================================
+   OUI
+================================= */
+
+yesBtn.addEventListener(
+    "click",
+    () => {
+
+        questionScreen.style.display = "none";
+
+        timerScreen.style.display = "flex";
+
+        currentTime =
+            Math.max(
+                1,
+                parseInt(skipTimeInput.value) || 15
+            );
+
+        timer.style.display = "block";
+        secondsText.style.display = "block";
+        skipBtn.style.display = "inline-block";
+
+        updateTimer();
+
+        beep(900, 150);
+
+        startTimerFromCurrentTime();
+    }
+);
+
+
+/* =================================
+   NON
+================================= */
+
+noBtn.addEventListener(
+    "click",
+    () => {
+
+        clearInterval(timerInterval);
+        clearInterval(delayInterval);
+
+        questionScreen.style.display = "none";
+        timerScreen.style.display = "none";
+
+        settingsScreen.style.display = "block";
+
+        beep(300, 200);
+    }
+);
+
+
+/* =================================
+   RETOUR RÉGLAGES
+================================= */
+
+settingsBtn.addEventListener(
+    "click",
+    () => {
+
+        clearInterval(timerInterval);
+        clearInterval(delayInterval);
+
+        timerScreen.style.display = "none";
+        streamDelayScreen.style.display = "none";
+        questionScreen.style.display = "none";
+
+        settingsScreen.style.display = "block";
+    }
+);
+
+
+/* =================================
+   START
+================================= */
+
+startBtn.addEventListener(
+    "click",
+    () => {
+
+        /*
+         * Les réglages disparaissent
+         * immédiatement.
+         *
+         * Le viewer ne voit donc jamais
+         * le menu pendant la session.
+         */
+
+        settingsScreen.style.display = "none";
+
+        startTimer();
+    }
+);
+
+
+/* =================================
+   INITIALISATION
+================================= */
+
+currentTime =
+    parseInt(startTimeInput.value) || 30;
 
 updateTimer();
+updateDelay();
 
 </script>
 
 </body>
 </html>
+```
